@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import confetti from "canvas-confetti";
 
 type AppState = "start" | "loading" | "session" | "complete";
 
@@ -267,7 +268,37 @@ export default function Home() {
       setState("complete");
       setIsTimerRunning(false);
       clearStorage();
+      // 🎉 Celebration confetti!
+      fireConfetti();
     }
+  };
+
+  const fireConfetti = () => {
+    const duration = 3000;
+    const end = Date.now() + duration;
+    
+    const colors = ["#8b5cf6", "#3b82f6", "#22c55e", "#f59e0b"];
+    
+    (function frame() {
+      confetti({
+        particleCount: 4,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0, y: 0.7 },
+        colors: colors,
+      });
+      confetti({
+        particleCount: 4,
+        angle: 120,
+        spread: 55,
+        origin: { x: 1, y: 0.7 },
+        colors: colors,
+      });
+
+      if (Date.now() < end) {
+        requestAnimationFrame(frame);
+      }
+    })();
   };
 
   const handleSkip = () => {
@@ -282,6 +313,7 @@ export default function Home() {
       setState("complete");
       setIsTimerRunning(false);
       clearStorage();
+      fireConfetti();
     }
   };
 
