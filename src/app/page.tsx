@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 
-type AppState = "start" | "loading" | "session" | "complete";
+type AppState = "start" | "loading" | "session" | "complete" | "error";
 
 interface MicroStep {
   id: number;
@@ -69,6 +69,7 @@ export default function Home() {
   const [isReframing, setIsReframing] = useState(false);
   const [timerDuration, setTimerDuration] = useState(TIMER_DURATION);
   const [showAllSteps, setShowAllSteps] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   // Load session from localStorage on mount
@@ -516,6 +517,33 @@ export default function Home() {
             </motion.div>
             <p className="text-xl text-gray-300">Breaking down your task...</p>
             <p className="text-gray-500 mt-2">Making it tiny and manageable</p>
+          </motion.div>
+        )}
+
+        {/* ERROR SCREEN */}
+        {state === "error" && (
+          <motion.div
+            key="error"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="w-full max-w-lg text-center"
+          >
+            <div className="text-6xl mb-6">😅</div>
+            <h2 className="text-2xl font-bold mb-2 text-red-400">Oops, something went wrong</h2>
+            <p className="text-gray-400 mb-6">{errorMessage || "Failed to break down your task. Please try again."}</p>
+            
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => {
+                setErrorMessage("");
+                setState("start");
+              }}
+              className="glow-button px-8 py-3 rounded-xl font-semibold"
+            >
+              ← Try again
+            </motion.button>
           </motion.div>
         )}
 
