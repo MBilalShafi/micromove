@@ -472,6 +472,20 @@ export default function Home() {
             <p className="text-xs text-gray-600 mt-4">
               Tip: Press ⌘+Enter to start
             </p>
+            
+            {/* How it works */}
+            <div className="mt-8 text-xs text-gray-600">
+              <details className="cursor-pointer">
+                <summary className="hover:text-gray-400 transition-colors">How it works</summary>
+                <div className="mt-3 text-left p-4 bg-gray-900/30 rounded-lg space-y-2">
+                  <p>1️⃣ <span className="text-gray-400">Enter the task you&apos;ve been avoiding</span></p>
+                  <p>2️⃣ <span className="text-gray-400">AI breaks it into tiny 5-minute steps</span></p>
+                  <p>3️⃣ <span className="text-gray-400">Focus on ONE step at a time</span></p>
+                  <p>4️⃣ <span className="text-gray-400">Stuck? Make it even smaller</span></p>
+                  <p>5️⃣ <span className="text-gray-400">Build momentum, crush procrastination</span></p>
+                </div>
+              </details>
+            </div>
           </motion.div>
         )}
 
