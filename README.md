@@ -100,13 +100,33 @@ If you click "I'm stuck", the AI makes the current step even smaller—sometimes
 
 ### Vercel (Recommended)
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/MBilalShafi/micromove)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/MBilalShafi/micromove&env=OPENAI_API_KEY&envDescription=Optional%20OpenAI%20API%20key%20for%20AI-powered%20task%20breakdown&envLink=https://platform.openai.com/api-keys)
 
-### Other Platforms
+**Steps:**
+1. Click the button above
+2. Connect your GitHub account
+3. (Optional) Add `OPENAI_API_KEY` for AI features
+4. Deploy!
+
+The app works without an API key (uses smart fallbacks), but AI makes breakdowns much better.
+
+### Self-Hosted
 
 ```bash
+# Build for production
 npm run build
+
+# Start the server
 npm start
+
+# Or with a custom port
+PORT=8080 npm start
+```
+
+### Docker (Coming Soon)
+
+```dockerfile
+# Dockerfile coming in a future update
 ```
 
 ## Contributing
