@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 
@@ -192,7 +192,8 @@ export default function Home() {
     
     // Play sound using Web Audio API
     try {
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const audioContext = new AudioContextClass();
       const oscillator = audioContext.createOscillator();
       const gainNode = audioContext.createGain();
       
@@ -267,7 +268,8 @@ export default function Home() {
       // Small celebration sound
       if (soundEnabled) {
         try {
-          const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+          const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+          const audioContext = new AudioContextClass();
           const oscillator = audioContext.createOscillator();
           const gainNode = audioContext.createGain();
           oscillator.connect(gainNode);
@@ -281,7 +283,7 @@ export default function Home() {
           }, 100);
           gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
           oscillator.stop(audioContext.currentTime + 0.3);
-        } catch (e) {}
+        } catch {}
       }
     } else {
       setState("complete");
@@ -357,7 +359,7 @@ export default function Home() {
         newSteps[currentStepIndex].text = data.newStep;
         setSteps(newSteps);
       }
-    } catch (error) {
+    } catch {
       // Fallback: simplify the step
       const newSteps = [...steps];
       const original = steps[currentStepIndex].text;
