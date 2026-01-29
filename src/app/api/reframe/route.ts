@@ -1,19 +1,58 @@
 import { NextRequest, NextResponse } from "next/server";
 
+// Smart fallback reframes based on step content
+function generateSmartReframe(originalStep: string): string {
+  const stepLower = originalStep.toLowerCase();
+  
+  // If step mentions writing
+  if (stepLower.includes("write") || stepLower.includes("draft") || stepLower.includes("type")) {
+    return `Just write ONE sentence. Any sentence. It can be terrible.`;
+  }
+  
+  // If step mentions reading
+  if (stepLower.includes("read") || stepLower.includes("review") || stepLower.includes("look")) {
+    return `Spend exactly 60 seconds skimming. Set a timer. Stop when it rings.`;
+  }
+  
+  // If step mentions opening/starting
+  if (stepLower.includes("open") || stepLower.includes("start") || stepLower.includes("begin")) {
+    return `Just open the file/app. Don't do anything else. Opening = success.`;
+  }
+  
+  // If step mentions organizing/cleaning
+  if (stepLower.includes("organize") || stepLower.includes("clean") || stepLower.includes("sort")) {
+    return `Pick up exactly ONE item. Just one. Put it where it belongs.`;
+  }
+  
+  // If step mentions emailing/messaging
+  if (stepLower.includes("email") || stepLower.includes("reply") || stepLower.includes("message")) {
+    return `Write just "Hi" and your name. That's the whole task.`;
+  }
+  
+  // If step mentions coding/fixing
+  if (stepLower.includes("code") || stepLower.includes("fix") || stepLower.includes("implement")) {
+    return `Add a single comment describing what you want to do. That's it.`;
+  }
+  
+  // Default: make it time-based and tiny
+  const shortened = originalStep.slice(0, 30);
+  return `Spend exactly 2 minutes on "${shortened}..." - timer stops, you stop. No pressure.`;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { originalStep, task } = await request.json();
 
-    if (!originalStep) {
+    if (!originalStep || typeof originalStep !== "string") {
       return NextResponse.json({ error: "Step is required" }, { status: 400 });
     }
 
     const apiKey = process.env.OPENAI_API_KEY;
     
     if (!apiKey) {
-      // Return simpler version without API
+      // Return smart fallback reframe
       return NextResponse.json({
-        newStep: `Just spend 2 minutes on: ${originalStep.slice(0, 40)}...`,
+        newStep: generateSmartReframe(originalStep),
       });
     }
 
@@ -44,7 +83,7 @@ Respond with ONLY the new step as plain text. No quotes, no explanation.`,
           {
             role: "user",
             content: `I'm stuck on this step: "${originalStep}"
-Original task was: "${task}"
+Original task was: "${task || 'unknown'}"
 
 Give me a smaller version I can actually do right now.`,
           },
@@ -54,20 +93,37 @@ Give me a smaller version I can actually do right now.`,
       }),
     });
 
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+
     const data = await response.json();
     
     if (data.error) {
       throw new Error(data.error.message);
     }
 
-    const newStep = data.choices[0]?.message?.content?.trim() || originalStep;
+    const newStep = data.choices[0]?.message?.content?.trim();
+    
+    if (!newStep || newStep.length < 5) {
+      return NextResponse.json({
+        newStep: generateSmartReframe(originalStep),
+      });
+    }
 
     return NextResponse.json({ newStep });
   } catch (error) {
-    console.error("Error:", error);
-    return NextResponse.json(
-      { error: "Failed to reframe step" },
-      { status: 500 }
-    );
+    console.error("Reframe error:", error);
+    // Return smart fallback on any error
+    try {
+      const { originalStep } = await request.clone().json();
+      return NextResponse.json({
+        newStep: generateSmartReframe(originalStep || "your task"),
+      });
+    } catch {
+      return NextResponse.json({
+        newStep: "Just spend 2 minutes looking at what you have. No action required.",
+      });
+    }
   }
 }
