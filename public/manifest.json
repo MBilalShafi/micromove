@@ -1,0 +1,21 @@
+{
+  "name": "MicroMove",
+  "short_name": "MicroMove",
+  "description": "Big tasks → tiny wins. 5 minutes at a time.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0f1a",
+  "theme_color": "#8b5cf6",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

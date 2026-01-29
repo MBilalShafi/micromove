@@ -67,6 +67,7 @@ export default function Home() {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [isReframing, setIsReframing] = useState(false);
   const [timerDuration, setTimerDuration] = useState(TIMER_DURATION);
+  const [showAllSteps, setShowAllSteps] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   // Load session from localStorage on mount
@@ -476,7 +477,12 @@ export default function Home() {
             {/* Progress */}
             <div className="mb-6">
               <div className="flex justify-between text-sm text-gray-400 mb-2">
-                <span>Step {currentStepIndex + 1} of {steps.length}</span>
+                <button 
+                  onClick={() => setShowAllSteps(!showAllSteps)}
+                  className="hover:text-gray-200 transition-colors"
+                >
+                  Step {currentStepIndex + 1} of {steps.length} {showAllSteps ? "▲" : "▼"}
+                </button>
                 <span>{completedSteps} done{skippedSteps > 0 ? `, ${skippedSteps} skipped` : ""}</span>
               </div>
               <div className="progress-bar h-2">
@@ -486,6 +492,40 @@ export default function Home() {
                   animate={{ width: `${progress}%` }}
                 />
               </div>
+              
+              {/* All steps view */}
+              <AnimatePresence>
+                {showAllSteps && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="mt-4 p-3 bg-gray-900/50 rounded-lg space-y-2">
+                      {steps.map((step, i) => (
+                        <div 
+                          key={i}
+                          className={`flex items-start gap-2 text-sm p-2 rounded ${
+                            i === currentStepIndex ? "bg-purple-900/30 border border-purple-500/30" : ""
+                          }`}
+                        >
+                          <span className="flex-shrink-0">
+                            {step.completed ? "✅" : step.skipped ? "⏭️" : i === currentStepIndex ? "👉" : "⬜"}
+                          </span>
+                          <span className={`${
+                            step.completed ? "text-gray-500 line-through" : 
+                            step.skipped ? "text-gray-600 line-through" : 
+                            i === currentStepIndex ? "text-white" : "text-gray-400"
+                          }`}>
+                            {step.text}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Timer */}
