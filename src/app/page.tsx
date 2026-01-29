@@ -485,6 +485,15 @@ export default function Home() {
                   <p>5️⃣ <span className="text-gray-400">Build momentum, crush procrastination</span></p>
                 </div>
               </details>
+              
+              <a 
+                href="https://github.com/MBilalShafi/micromove" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="mt-4 inline-block text-gray-500 hover:text-gray-300 transition-colors"
+              >
+                ⭐ Star on GitHub
+              </a>
             </div>
           </motion.div>
         )}
