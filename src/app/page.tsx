@@ -434,10 +434,11 @@ export default function Home() {
             <p className="text-gray-400 mb-8">Big tasks → tiny wins. 5 minutes at a time.</p>
             
             <div className="card p-6 mb-6">
-              <label className="block text-left text-sm text-gray-400 mb-2">
+              <label htmlFor="task-input" className="block text-left text-sm text-gray-400 mb-2">
                 What are you avoiding?
               </label>
               <textarea
+                id="task-input"
                 ref={inputRef}
                 value={task}
                 onChange={(e) => setTask(e.target.value)}
@@ -448,7 +449,9 @@ export default function Home() {
                   }
                 }}
                 placeholder="Write my thesis introduction..."
-                className="w-full bg-transparent border border-gray-700 rounded-lg p-4 text-lg resize-none focus:outline-none focus:border-purple-500 transition-colors"
+                aria-label="Enter the task you've been avoiding"
+                aria-describedby="task-hint"
+                className="w-full bg-transparent border border-gray-700 rounded-lg p-4 text-lg resize-none focus:outline-none focus:border-purple-500 transition-colors focus:ring-2 focus:ring-purple-500/50"
                 rows={3}
               />
               
