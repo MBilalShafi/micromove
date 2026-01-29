@@ -387,6 +387,22 @@ export default function Home() {
                 rows={3}
               />
               
+              {/* Example tasks */}
+              {!task && (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <span className="text-xs text-gray-500">Try:</span>
+                  {["Write a blog post", "Clean my room", "Reply to emails", "Study for exam"].map((example) => (
+                    <button
+                      key={example}
+                      onClick={() => setTask(example)}
+                      className="text-xs px-2 py-1 rounded bg-gray-800/50 text-gray-400 hover:text-gray-200 hover:bg-gray-700/50 transition-colors"
+                    >
+                      {example}
+                    </button>
+                  ))}
+                </div>
+              )}
+              
               {/* Timer duration selector */}
               <div className="mt-4 flex items-center justify-between text-sm">
                 <span className="text-gray-400">Time per step:</span>

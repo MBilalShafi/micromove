@@ -37,7 +37,7 @@ MicroMove takes your overwhelming task and:
 
 ```bash
 # Clone the repo
-git clone https://github.com/YourUsername/micromove.git
+git clone https://github.com/MBilalShafi/micromove.git
 cd micromove
 
 # Install dependencies
@@ -100,7 +100,7 @@ If you click "I'm stuck", the AI makes the current step even smaller—sometimes
 
 ### Vercel (Recommended)
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/YourUsername/micromove)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/MBilalShafi/micromove)
 
 ### Other Platforms
 
