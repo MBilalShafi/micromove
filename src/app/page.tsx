@@ -70,7 +70,25 @@ export default function Home() {
   const [timerDuration, setTimerDuration] = useState(TIMER_DURATION);
   const [showAllSteps, setShowAllSteps] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isOffline, setIsOffline] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  // Offline detection
+  useEffect(() => {
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
+    
+    // Check initial state
+    setIsOffline(!navigator.onLine);
+    
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+    
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
 
   // Load session from localStorage on mount
   useEffect(() => {
@@ -379,6 +397,20 @@ export default function Home() {
 
   return (
     <main className="min-h-screen flex items-center justify-center p-4">
+      {/* Offline banner */}
+      <AnimatePresence>
+        {isOffline && (
+          <motion.div
+            initial={{ y: -50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -50, opacity: 0 }}
+            className="fixed top-0 left-0 right-0 bg-yellow-600/90 text-white text-center py-2 text-sm z-50"
+          >
+            📡 You&apos;re offline. The app will still work with fallback steps.
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
       <AnimatePresence mode="wait">
         {/* START SCREEN */}
         {state === "start" && (
