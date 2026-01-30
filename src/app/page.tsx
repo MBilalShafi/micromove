@@ -3,8 +3,10 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
+import Onboarding from "@/components/Onboarding";
 
 type AppState = "start" | "loading" | "session" | "complete" | "error";
+const ONBOARDING_KEY = "micromove-onboarding-complete";
 
 interface MicroStep {
   id: number;
@@ -57,6 +59,7 @@ const stuckMessages = [
 ];
 
 export default function Home() {
+  const [showOnboarding, setShowOnboarding] = useState<boolean | null>(null);
   const [state, setState] = useState<AppState>("start");
   const [task, setTask] = useState("");
   const [steps, setSteps] = useState<MicroStep[]>([]);
@@ -72,6 +75,17 @@ export default function Home() {
   const [errorMessage, setErrorMessage] = useState("");
   const [isOffline, setIsOffline] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  // Check if onboarding was completed
+  useEffect(() => {
+    const hasSeenOnboarding = localStorage.getItem(ONBOARDING_KEY);
+    setShowOnboarding(!hasSeenOnboarding);
+  }, []);
+
+  const handleOnboardingComplete = () => {
+    localStorage.setItem(ONBOARDING_KEY, "true");
+    setShowOnboarding(false);
+  };
 
   // Offline detection
   useEffect(() => {
@@ -396,6 +410,20 @@ export default function Home() {
     : 0;
 
   const timerProgress = timerDuration > 0 ? timeLeft / timerDuration : 0;
+
+  // Show nothing while checking localStorage (prevents flash)
+  if (showOnboarding === null) {
+    return (
+      <main className="min-h-screen flex items-center justify-center p-4">
+        <div className="animate-pulse text-4xl">🚀</div>
+      </main>
+    );
+  }
+
+  // Show onboarding for new users
+  if (showOnboarding) {
+    return <Onboarding onComplete={handleOnboardingComplete} />;
+  }
 
   return (
     <main className="min-h-screen flex items-center justify-center p-4">
