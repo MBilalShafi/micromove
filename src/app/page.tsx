@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 import Onboarding from "@/components/Onboarding";
+import SettingsModal, { useSettings, Settings } from "@/components/SettingsModal";
 
 type AppState = "start" | "loading" | "session" | "complete" | "error";
 const ONBOARDING_KEY = "micromove-onboarding-complete";
@@ -60,6 +61,8 @@ const stuckMessages = [
 
 export default function Home() {
   const [showOnboarding, setShowOnboarding] = useState<boolean | null>(null);
+  const [showSettings, setShowSettings] = useState(false);
+  const { settings, saveSettings, loaded: settingsLoaded } = useSettings();
   const [state, setState] = useState<AppState>("start");
   const [task, setTask] = useState("");
   const [steps, setSteps] = useState<MicroStep[]>([]);
@@ -68,13 +71,21 @@ export default function Home() {
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [totalTimeSpent, setTotalTimeSpent] = useState(0);
   const [encouragement, setEncouragement] = useState(encouragements[0]);
-  const [soundEnabled, setSoundEnabled] = useState(true);
   const [isReframing, setIsReframing] = useState(false);
   const [timerDuration, setTimerDuration] = useState(TIMER_DURATION);
   const [showAllSteps, setShowAllSteps] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isOffline, setIsOffline] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  // Sync timer duration with settings
+  useEffect(() => {
+    if (settingsLoaded && state === "start") {
+      const newDuration = settings.defaultTimerMinutes * 60;
+      setTimerDuration(newDuration);
+      setTimeLeft(newDuration);
+    }
+  }, [settingsLoaded, settings.defaultTimerMinutes, state]);
 
   // Check if onboarding was completed
   useEffect(() => {
@@ -85,6 +96,16 @@ export default function Home() {
   const handleOnboardingComplete = () => {
     localStorage.setItem(ONBOARDING_KEY, "true");
     setShowOnboarding(false);
+  };
+
+  const handleSettingsSave = (newSettings: Settings) => {
+    saveSettings(newSettings);
+    // Update timer if on start screen
+    if (state === "start") {
+      const newDuration = newSettings.defaultTimerMinutes * 60;
+      setTimerDuration(newDuration);
+      setTimeLeft(newDuration);
+    }
   };
 
   // Offline detection
@@ -197,14 +218,13 @@ export default function Home() {
   }, [state]);
 
   const playNotification = () => {
-    if (!soundEnabled) return;
-    
     // Vibrate
-    if (navigator.vibrate) {
+    if (settings.vibrationEnabled && navigator.vibrate) {
       navigator.vibrate([200, 100, 200, 100, 200]);
     }
     
     // Play sound using Web Audio API
+    if (!settings.soundEnabled) return;
     try {
       const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       const audioContext = new AudioContextClass();
@@ -234,7 +254,11 @@ export default function Home() {
       const response = await fetch("/api/breakdown", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ task }),
+        body: JSON.stringify({ 
+          task,
+          apiKey: settings.apiKey,
+          model: settings.model,
+        }),
       });
       
       const data = await response.json();
@@ -280,7 +304,7 @@ export default function Home() {
       setTimeLeft(timerDuration);
       setEncouragement(encouragements[Math.floor(Math.random() * encouragements.length)]);
       // Small celebration sound
-      if (soundEnabled) {
+      if (settings.soundEnabled) {
         try {
           const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
           const audioContext = new AudioContextClass();
@@ -362,7 +386,9 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           originalStep: steps[currentStepIndex].text,
-          task 
+          task,
+          apiKey: settings.apiKey,
+          model: settings.model,
         }),
       });
       
@@ -449,8 +475,23 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="w-full max-w-lg text-center"
+            className="w-full max-w-lg text-center relative"
           >
+            {/* Settings Button */}
+            <motion.button
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              onClick={() => setShowSettings(true)}
+              className="absolute -top-2 right-0 p-2 text-gray-500 hover:text-gray-300 transition-colors rounded-lg hover:bg-white/5"
+              aria-label="Open settings"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </motion.button>
+
             <motion.div 
               className="text-6xl mb-6 animate-float"
               initial={{ scale: 0 }}
@@ -630,11 +671,14 @@ export default function Home() {
                 ← New task
               </button>
               <button
-                onClick={() => setSoundEnabled(!soundEnabled)}
-                className="text-gray-500 hover:text-gray-300 transition-colors"
-                title={soundEnabled ? "Mute sounds" : "Enable sounds"}
+                onClick={() => setShowSettings(true)}
+                className="text-gray-500 hover:text-gray-300 transition-colors p-1"
+                aria-label="Open settings"
               >
-                {soundEnabled ? "🔊" : "🔇"}
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
               </button>
             </div>
 
@@ -860,6 +904,14 @@ export default function Home() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Settings Modal */}
+      <SettingsModal
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+        onSave={handleSettingsSave}
+        currentSettings={settings}
+      />
     </main>
   );
 }

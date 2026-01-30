@@ -41,13 +41,15 @@ function generateSmartReframe(originalStep: string): string {
 
 export async function POST(request: NextRequest) {
   try {
-    const { originalStep, task } = await request.json();
+    const { originalStep, task, apiKey: userApiKey, model: userModel } = await request.json();
 
     if (!originalStep || typeof originalStep !== "string") {
       return NextResponse.json({ error: "Step is required" }, { status: 400 });
     }
 
-    const apiKey = process.env.OPENAI_API_KEY;
+    // Use user-provided API key, or fall back to environment variable
+    const apiKey = userApiKey || process.env.OPENAI_API_KEY;
+    const model = userModel || "gpt-4o-mini";
     
     if (!apiKey) {
       // Return smart fallback reframe
@@ -63,7 +65,7 @@ export async function POST(request: NextRequest) {
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: model,
         messages: [
           {
             role: "system",

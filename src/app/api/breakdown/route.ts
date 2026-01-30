@@ -80,7 +80,7 @@ function generateFallbackSteps(task: string): string[] {
 
 export async function POST(request: NextRequest) {
   try {
-    const { task } = await request.json();
+    const { task, apiKey: userApiKey, model: userModel } = await request.json();
 
     if (!task || typeof task !== "string") {
       return NextResponse.json({ error: "Task is required" }, { status: 400 });
@@ -91,7 +91,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Task is too short" }, { status: 400 });
     }
 
-    const apiKey = process.env.OPENAI_API_KEY;
+    // Use user-provided API key, or fall back to environment variable
+    const apiKey = userApiKey || process.env.OPENAI_API_KEY;
+    const model = userModel || "gpt-4o-mini";
     
     if (!apiKey) {
       // Return smart fallback steps
@@ -107,7 +109,7 @@ export async function POST(request: NextRequest) {
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: model,
         messages: [
           {
             role: "system",
