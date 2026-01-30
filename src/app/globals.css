@@ -1,24 +1,70 @@
 @import "tailwindcss";
 
-:root {
+/* Dark theme (default) */
+:root,
+.dark {
   --background: #0f0f1a;
+  --background-secondary: #1a1a2e;
+  --background-tertiary: #16213e;
   --foreground: #e8e8f0;
+  --foreground-muted: #9ca3af;
+  --foreground-subtle: #6b7280;
   --primary: #8b5cf6;
   --primary-light: #a78bfa;
   --secondary: #3b82f6;
   --accent: #22c55e;
   --muted: #6b7280;
+  --card-bg: rgba(255, 255, 255, 0.05);
+  --card-border: rgba(255, 255, 255, 0.1);
+  --input-bg: transparent;
+  --input-border: #374151;
+  --input-border-focus: #8b5cf6;
+}
+
+/* Light theme */
+.light {
+  --background: #f8fafc;
+  --background-secondary: #f1f5f9;
+  --background-tertiary: #e2e8f0;
+  --foreground: #1e293b;
+  --foreground-muted: #64748b;
+  --foreground-subtle: #94a3b8;
+  --primary: #7c3aed;
+  --primary-light: #8b5cf6;
+  --secondary: #2563eb;
+  --accent: #16a34a;
+  --muted: #64748b;
+  --card-bg: rgba(255, 255, 255, 0.8);
+  --card-border: rgba(0, 0, 0, 0.1);
+  --input-bg: #ffffff;
+  --input-border: #d1d5db;
+  --input-border-focus: #7c3aed;
 }
 
 * {
   box-sizing: border-box;
 }
 
+html {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
 body {
-  background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
   color: var(--foreground);
   min-height: 100vh;
   font-family: system-ui, -apple-system, sans-serif;
+  transition: background 0.3s ease;
+}
+
+/* Dark mode background */
+.dark body,
+:root body {
+  background: linear-gradient(135deg, var(--background) 0%, var(--background-secondary) 50%, var(--background-tertiary) 100%);
+}
+
+/* Light mode background */
+.light body {
+  background: linear-gradient(135deg, var(--background) 0%, var(--background-secondary) 50%, var(--background-tertiary) 100%);
 }
 
 /* Gradient text */
@@ -34,6 +80,7 @@ body {
   background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
   box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
   transition: all 0.3s ease;
+  color: white;
 }
 
 .glow-button:hover {
@@ -47,15 +94,20 @@ body {
 
 /* Card style */
 .card {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--card-bg);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--card-border);
   border-radius: 1rem;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.light .card {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
 }
 
 /* Progress bar */
 .progress-bar {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--card-border);
   border-radius: 9999px;
   overflow: hidden;
 }
@@ -72,6 +124,47 @@ body {
   stroke-linecap: round;
   transition: stroke-dashoffset 1s linear;
 }
+
+/* Input styles */
+input, textarea {
+  background: var(--input-bg);
+  border-color: var(--input-border);
+  color: var(--foreground);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+input:focus, textarea:focus {
+  border-color: var(--input-border-focus);
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--foreground-subtle);
+}
+
+/* Text colors */
+.text-foreground { color: var(--foreground); }
+.text-muted { color: var(--foreground-muted); }
+.text-subtle { color: var(--foreground-subtle); }
+
+/* Override some Tailwind grays for theme support */
+.light .text-gray-100 { color: #1e293b; }
+.light .text-gray-200 { color: #334155; }
+.light .text-gray-300 { color: #475569; }
+.light .text-gray-400 { color: #64748b; }
+.light .text-gray-500 { color: #94a3b8; }
+.light .text-gray-600 { color: #94a3b8; }
+.light .text-gray-700 { color: #cbd5e1; }
+.light .bg-gray-800 { background-color: #e2e8f0; }
+.light .bg-gray-800\/50 { background-color: rgba(226, 232, 240, 0.5); }
+.light .bg-gray-900 { background-color: #f1f5f9; }
+.light .bg-gray-900\/30 { background-color: rgba(241, 245, 249, 0.3); }
+.light .bg-gray-900\/50 { background-color: rgba(241, 245, 249, 0.5); }
+.light .border-gray-700 { border-color: #d1d5db; }
+.light .border-gray-800 { border-color: #e2e8f0; }
+.light .hover\:bg-gray-700:hover { background-color: #cbd5e1; }
+.light .hover\:text-gray-200:hover { color: #334155; }
+.light .hover\:text-gray-300:hover { color: #475569; }
+.light .hover\:text-gray-400:hover { color: #64748b; }
 
 /* Animations */
 @keyframes pulse-glow {
@@ -90,4 +183,17 @@ body {
 
 .animate-float {
   animation: float 3s ease-in-out infinite;
+}
+
+/* Smooth transitions for theme changes */
+*, *::before, *::after {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Exclude certain elements from transition */
+.no-transition,
+.no-transition * {
+  transition: none !important;
 }

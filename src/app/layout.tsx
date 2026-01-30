@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 export const metadata: Metadata = {
   title: "MicroMove - AI Procrastination Killer",
@@ -34,18 +35,38 @@ export const viewport: Viewport = {
   themeColor: "#8b5cf6",
 };
 
+// Script to prevent flash of incorrect theme
+const themeScript = `
+  (function() {
+    try {
+      var theme = localStorage.getItem('micromove-theme');
+      var resolved = theme;
+      if (!theme || theme === 'system') {
+        resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      document.documentElement.classList.add(resolved);
+      document.documentElement.style.colorScheme = resolved;
+    } catch (e) {
+      document.documentElement.classList.add('dark');
+    }
+  })();
+`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <ThemeProvider>{children}</ThemeProvider>
+      </body>
     </html>
   );
 }

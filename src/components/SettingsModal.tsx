@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTheme } from './ThemeProvider';
 
 export interface Settings {
   apiKey: string;
@@ -64,6 +65,7 @@ export function useSettings() {
 export default function SettingsModal({ isOpen, onClose, onSave, currentSettings }: SettingsModalProps) {
   const [settings, setSettings] = useState<Settings>(currentSettings);
   const [showApiKey, setShowApiKey] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   // Sync with props when modal opens
   useEffect(() => {
@@ -193,6 +195,33 @@ export default function SettingsModal({ isOpen, onClose, onSave, currentSettings
                       }`}
                     >
                       {mins}m
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Theme */}
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  Theme
+                </label>
+                <div className="flex gap-2">
+                  {[
+                    { id: 'light' as const, icon: '☀️', label: 'Light' },
+                    { id: 'dark' as const, icon: '🌙', label: 'Dark' },
+                    { id: 'system' as const, icon: '💻', label: 'System' },
+                  ].map((option) => (
+                    <button
+                      key={option.id}
+                      onClick={() => setTheme(option.id)}
+                      className={`flex-1 py-2.5 rounded-lg font-medium transition-all flex items-center justify-center gap-1.5 ${
+                        theme === option.id
+                          ? 'bg-purple-600 text-white'
+                          : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                      }`}
+                    >
+                      <span>{option.icon}</span>
+                      <span className="text-sm">{option.label}</span>
                     </button>
                   ))}
                 </div>
