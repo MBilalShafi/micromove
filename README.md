@@ -41,14 +41,14 @@ git clone https://github.com/MBilalShafi/micromove.git
 cd micromove
 
 # Install dependencies
-npm install
+pnpm install
 
 # (Optional) Add OpenAI API key for AI features
 cp .env.example .env.local
 # Edit .env.local and add your OPENAI_API_KEY
 
 # Run the dev server
-npm run dev
+pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) and start crushing tasks!
@@ -114,13 +114,13 @@ The app works without an API key (uses smart fallbacks), but AI makes breakdowns
 
 ```bash
 # Build for production
-npm run build
+pnpm build
 
 # Start the server
-npm start
+pnpm start
 
 # Or with a custom port
-PORT=8080 npm start
+PORT=8080 pnpm start
 ```
 
 ### Docker (Coming Soon)
